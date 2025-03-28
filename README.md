@@ -2,8 +2,9 @@
 
 ## Instructions for installation
 
-git clone https://github.com/oscarhcaballero/todolistapi
-cd todolistapi
+git clone https://github.com/oscarhcaballero/todolistapi-laravel
+
+cd todolistapi-laravel
 
 make build-project
 
