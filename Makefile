@@ -64,6 +64,20 @@ create-seeder: ## Create a new seeder
 	@read -p "Enter the name of the seeder: " seeder_name; \
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:seeder $$seeder_name
 
+
+create-model: ## Create a new model
+	@echo "Creating a new model..."
+	@read -p "Enter the name of the model: " model_name; \
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:model $$model_name
+
+
+create-controller: ## Create a new controller
+	@echo "Creating a new controller..."
+	@read -p "Enter the name of the controller: " controller_name; \
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:controller $$controller_name --resource
+
+
+
 test: ## Execute tests
 	@echo "Executing tests..."
 	
