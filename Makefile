@@ -20,13 +20,11 @@ help: ## show all available targets
 build-project: ## Build project images & start up containers
 	@echo "Building project images..."
 	$(DOCKER_COMPOSE) down
-	$(DOCKER_COMPOSE) build --no-cache
+	$(DOCKER_COMPOSE) build --no-cache --build-arg UID=$(USER_ID) --build-arg GID=$(GROUP_ID)
 	@echo "Starting up containers..."
 	$(DOCKER_COMPOSE) up -d --wait
 	@echo "Clearing cache..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) composer clear-cache
-	@echo "Installing dependencies..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) composer install
 	
 	
 
@@ -49,8 +47,18 @@ clear-cache: ## Clean the caches of the application
 	@echo "Cleaning the caches of the application..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan cache:clear
 
+route-list: ## Show the list of routes
+	@echo "Showing the list of routes..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan route:clear
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan config:clear
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan cache:clear
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan route:cache
+	$(DOCKER_COMPOSE) restart $(PHP_SERVICE)
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan route:list
+
 
 ssh: ## bash inside the container of the API
+	@echo "Accessing the api container..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) -it ${PHP_SERVICE} bash
 
 
@@ -74,12 +82,14 @@ create-model: ## Create a new model
 create-controller: ## Create a new controller
 	@echo "Creating a new controller..."
 	@read -p "Enter the name of the controller: " controller_name; \
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:controller $$controller_name --resource
+	read -p "Enter the name of the model: " model_name; \
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:controller $$controller_name --resource --model=$$model_name
 
 
-
-test: ## Execute tests
+test: ## Execute tests like this, make test --filter=TestName
 	@echo "Executing tests..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan test $(filter-out $@,$(MAKECMDGOALS))
+
 	
 
  

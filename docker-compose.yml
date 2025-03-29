@@ -3,6 +3,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
     container_name: todolist_api
     restart: unless-stopped
     working_dir: /var/www/html
@@ -20,6 +23,12 @@ services:
       - DB_DATABASE=${DB_DATABASE} 
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   mysql:
     image: mysql:8.0
@@ -47,7 +56,7 @@ services:
     depends_on:
       - mysql
     ports:
-      - "8080:80"
+      - "8080:80"   
     environment:
       PMA_HOST: ${DB_HOST}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
