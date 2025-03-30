@@ -30,11 +30,11 @@ build-project: ## Build project images & start up containers
 
 migrate: ## Update the database schema
 	@echo "Updating the database schema..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate  
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate
 
-migrate-fresh: ## Create the database and run all migrations from scratch. Warning, this will delete all data in the database.
-	@echo "Creating the database and running all migrations from scratch..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate:fresh  
+migrate-fresh: ## Creates the database, run all migrations from scratch, and seed the tables. Warning, this will delete all data in the database.
+	@echo "Creates the database, run all migrations from scratch, and seed the tables..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate:fresh --seed
 
 schema: ## SQL script for creating the schema
 	@echo "SQL script for creating the schema..."
@@ -66,6 +66,9 @@ create-migration: ## Create a new migration
 	@echo "Creating a new migration..."
 	@read -p "Enter the name of the migration: " migration_name; \
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:migration $$migration_name
+
+
+
 
 create-seeder: ## Create a new seeder
 	@echo "Creating a new seeder..."
