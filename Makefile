@@ -68,12 +68,17 @@ create-migration: ## Create a new migration
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:migration $$migration_name
 
 
-
-
 create-seeder: ## Create a new seeder
 	@echo "Creating a new seeder..."
 	@read -p "Enter the name of the seeder: " seeder_name; \
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:seeder $$seeder_name
+
+
+create-api-resource: ## Create a new API resource (model, migration, controller)
+	@echo "Creating a new API resource..."
+	@read -p "Enter the name of the resource: " resource_name; \
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:model $$resource_name -m --resource
+	
 
 
 create-model: ## Create a new model
