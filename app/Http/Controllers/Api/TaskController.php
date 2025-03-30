@@ -3,217 +3,173 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Task;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
-
+use App\Interfaces\TaskServiceInterface;
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
+use App\Helpers\ApiResponse;
+use App\Exceptions\TaskException;
 
 class TaskController extends Controller
 {   
+     
+    protected $taskService;
+
     /**
-     * Display a listing of tasks.
+     * Create a new controller instance, using the TaskServiceInterface
+     * 
+     * SOLID Principles used: 
+     *  Dependency Inversion Principle (DIP)
      *
-     * @return \Illuminate\Http\Response
+     * @param TaskServiceInterface $taskService
      */
-    public function index():JsonResponse
+    public function __construct(TaskServiceInterface $taskService)
     {
-        $tasks = Task::all();
-
-        $data = [
-            'task' => $tasks,
-            'status' => 200 ,
-        ];
-
-        return response()->json($data, 200);
-        
+        $this->taskService = $taskService;
     }
 
     /**
-     * Display the specified task.
+     * Display a listing of tasks.
+     * 
+     * SOLID Principles used: 
+     *  Single Responsibility Principle (SRP)
+     *  Open/Close Principle (OCP)
      *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function index():JsonResponse
+    {
+        // get all tasks using the TaskService (SRP)
+        $tasks = $this->taskService->getAllTasks();
+
+        if ($tasks->isEmpty()) {
+            // if no tasks found, return a success response
+            // is not an error that no tasks are found
+            // managing the response (OCP)
+            return ApiResponse::success($tasks, 'No tasks found.');
+        }
+
+        // if tasks found, return a success response
+        // managing the response (OCP)
+        return ApiResponse::success($tasks, 'Tasks retrieved successfully.');
+
+    }
+
+    /**
+     * Display the specified task by id
+     *
+     * SOLID Principles used: 
+     *  Single Responsibility Principle (SRP)
+     *  Open/Close Principle (OCP)
+     * 
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function show($id):JsonResponse
     {
-        $task = Task::find($id);
+        // get the task by id, using the TaskService (SRP)
+        $task = $this->taskService->getTaskById($id);
         
         if (!$task) {
-            return response()->json([
-                'message' => 'Task not found.',
-                'status' => 404,
-            ], 404);
+            // if task does not exist, return an error response
+            // managing the response (OCP)
+            return ApiResponse::error('Task not found.', 404);
         }
 
-        $data = [
-            'task' => $task,
-            'status' => 200,
-        ];
-
-        return response()->json($data, 200);
+        // if task exists, return a success response
+        // managing the response (OCP)
+        return ApiResponse::success($task, 'Task retrieved successfully.');
         
     }
 
     /**
      * Store a newly created task in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * 
+     * SOLID Principles used: 
+     *  Single Responsibility Principle (SRP)
+     *  Open/Close Principle (OCP)
+     * 
+     * @param  \App\Http\Requests\StoreTaskRequest  $request
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request):JsonResponse
-    {
-        // validations of the request
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|string|in:pending,in_progress,completed',
-            'user_id' => 'required|integer|exists:users,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation error creating the task.',
-                'errors' => $validator->errors(),
-                'status' => 422,
-            ], 422);
-        }
-
-        // create the task
-        $task = Task::create([
-            'title' => $request->input('title'),
-            'description' => $request->input('description'),
-            'status' => $request->input('status'),
-            'user_id' => $request->input('user_id'),
-        ]);
-
-        if (!$task) {
-            return response()->json([
-                'message' => 'Error creating the task.',
-                'status' => 500,
-            ], 500);
-        }
-
-
-        return response()->json([
-            'message' => 'Task successfully created.',
-            'task' => $task,
-            'status' => 201,
-        ], 201);  
+    public function store(StoreTaskRequest $request):JsonResponse
+    { 
+        $validatedData = $request->validated();
+        
+        // validate the request using the StoreTaskRequest (SRP)
+        $task = $this->taskService->createTask($validatedData);
+        
+        // if task creation is successful, return a success response
+        // managing the response (OCP)
+        return ApiResponse::success($task, 'Task created successfully.');
+           
     }
 
     /**
-     * Update the specified task in storage.
+     * Update the specified task by id, in storage.
+     * 
+     * SOLID Principles used: 
+     *  Single Responsibility Principle (SRP)
+     *  Open/Close Principle (OCP)
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  UpdateTaskRequest $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id):JsonResponse
+    public function update(UpdateTaskRequest $request, $id):JsonResponse
     {
-        $task = Task::find($id);
+        // get the task by id using the TaskService (SRP)
+        $task = $this->taskService->getTaskById($id);
         if (!$task) {
-            return response()->json([
-                'message' => 'Task not found.',
-                'status' => 404,
-            ], 404);
+            // if task does not exist, return an error response
+            // managing the response (OCP)
+            return ApiResponse::error('Task not found.', 404);
         }
 
-
-        // validations of the request
-        $validator = Validator::make($request->all(), [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|string|in:pending,in_progress,completed',
-            'user_id' => 'required|integer|exists:users,id',
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation error updating the task.',
-                'errors' => $validator->errors(),
-                'status' => 422,
-            ], 422);
+        // validate the request using the UpdateTaskRequest (SRP)
+        $updatedTask = $this->taskService->updateTask($task, $request->validated());
+        if (!$updatedTask) {
+            // if task update fails, return an error response
+            // managing the response (OCP)
+            return ApiResponse::error('Error updating the task.', 500);
         }
+        
+        // if task update is successful, return a success response
+        // managing the response (OCP)
+        return ApiResponse::success($updatedTask, 'Task updated successfully.');
 
-        // update the task
-        $task->title = $request->input('title');
-        $task->description = $request->input('description');
-        $task->status = $request->input('status');
-        $task->user_id = $request->input('user_id');
-        $task->save();
-
-        return response()->json([
-            'message' => 'Task successfully updated.',
-            'task' => $task,
-            'status' => 200,
-        ], 200);
     }
 
-    /**
-     * Update the specified task in storage partially.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function updatePartial(Request $request, $id):JsonResponse
-    {
-        $task = Task::find($id);
-        if (!$task) {
-            return response()->json([
-                'message' => 'Task not found.',
-                'status' => 404,
-            ], 404);
-        }
-
-        // validations of the request
-        $validator = Validator::make($request->all(), [
-            'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|nullable|string',
-            'status' => 'sometimes|required|string|in:pending,in_progress,completed',
-            'user_id' => 'sometimes|required|integer|exists:users,id',
-        ]);
-        if ($validator->fails()) {
-            return response()->json([
-                'message' => 'Validation error updating the task.',
-                'errors' => $validator->errors(),
-                'status' => 422,
-            ], 422);
-        }
-
-        // update the task
-        $task->update($request->only(['title', 'description', 'status', 'user_id']));
-
-        return response()->json([
-            'message' => 'Task successfully updated.',
-            'task' => $task,
-            'status' => 200,
-        ], 200);
-    }
+    
 
 
     /**
-     * Remove the specified task from storage.
+     * Remove the specified task by id from storage.
+     * 
+     * SOLID Principles used: 
+     *  Single Responsibility Principle (SRP)
+     *  Open/Close Principle (OCP)
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id):JsonResponse
     {
-        $task = Task::find($id);
+        // get the task by id using the TaskService (SRP)
+        $task = $this->taskService->getTaskById($id);
         if (!$task) {
-            return response()->json([
-                'message' => 'Task not found.',
-                'status' => 404,
-            ], 404);
+            // if task does not exist, return an error response
+            // managing the response (OCP)
+            return ApiResponse::error('Task not found.', 404);
         }
 
-        $task->delete();
+        // delete the task using the TaskService (SRP)
+        $this->taskService->deleteTask($task);
 
-        return response()->json([
-            'message' => 'Task successfully deleted.',
-            'status' => 200,
-        ], 200);
+        // if task deletion is successful, return a success response
+        // managing the response (OCP)
+        return ApiResponse::success(null, 'Task deleted successfully.');
+
     }
     
  
