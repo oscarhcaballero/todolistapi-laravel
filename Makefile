@@ -30,6 +30,13 @@ build-project: ## Build project images & start up containers
 	$(DOCKER_COMPOSE) up -d --wait
 	@echo "Clearing cache..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) composer clear-cache
+
+install: ## Install dependencies
+	@echo "Installing npm dependencies..."
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm install
+	@echo "Building assets..."
+	$(DOCKER_COMPOSE) exec --user root -d $(PHP_SERVICE) npm run dev
+	
 	
 migrate: ## Run migrations for the development environment
 	@echo "Running migrations for the development environment..."

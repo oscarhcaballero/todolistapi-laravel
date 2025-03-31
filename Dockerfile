@@ -25,6 +25,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
+# Install system dependencies for npm
+RUN apt-get install -y \
+    build-essential \
+    python3
 
 # copy the application code 
 WORKDIR /var/www/html

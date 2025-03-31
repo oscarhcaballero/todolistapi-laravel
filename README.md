@@ -8,10 +8,15 @@ cd todolistapi-laravel
 
 make build-project
 
-make migrate  
+docker ps 
+(wait until all the containers are healthy)
+
+make install
 
 
 ## Instructions for operation
+
+Launch tests:  make test
 
 
 
@@ -24,3 +29,7 @@ make migrate
 
 
 ## Where is the database schema
+
+You can generate the schema: make schema
+
+The schema will be at /database/schema/schema.sql
