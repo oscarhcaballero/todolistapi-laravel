@@ -21,6 +21,11 @@ RUN apt-get update && apt-get install -y \
 # Composer installation
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
+# Node.js & npm installation
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
+
 # copy the application code 
 WORKDIR /var/www/html
 COPY . .

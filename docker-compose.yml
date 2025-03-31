@@ -16,7 +16,7 @@ services:
     depends_on:
       - mysql
     environment:
-      - APP_ENV=${APP_ENV}
+      - APP_ENV=local
       - DB_CONNECTION=${DB_CONNECTION}
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
@@ -29,6 +29,38 @@ services:
       timeout: 5s
       retries: 3
       start_period: 30s
+
+  api_testing:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${UID}
+        GID: ${GID}
+    container_name: todolist_api_testing
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8001:80"
+    depends_on:
+      - mysql_testing
+    environment:
+      - APP_ENV=testing
+      - DB_CONNECTION=${DB_CONNECTION_TESTING}
+      - DB_HOST=${DB_HOST_TESTING}
+      - DB_PORT=${DB_PORT_TESTING}
+      - DB_DATABASE=${DB_DATABASE_TESTING} 
+      - DB_USERNAME=${DB_USERNAME_TESTING}
+      - DB_PASSWORD=${DB_PASSWORD_TESTING}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
 
   mysql:
     image: mysql:8.0
@@ -49,16 +81,36 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
 
+  mysql_testing:
+    image: mysql:8.0
+    container_name: mysql_testing_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE_TESTING}
+      MYSQL_USER: ${DB_USERNAME_TESTING}
+      MYSQL_PASSWORD: ${DB_PASSWORD_TESTING}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD_TESTING}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    ports:
+      - "3307:3306" # Cambia el puerto para evitar conflictos con el servicio mysql
+    volumes:
+      - mysql_testing_data:/var/lib/mysql
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: phpmyadmin_ui
     restart: unless-stopped
     depends_on:
       - mysql
+      - mysql_testing
     ports:
       - "8080:80"   
     environment:
-      PMA_HOST: ${DB_HOST}
+      PMA_HOSTS: ${DB_HOST}, ${DB_HOST_TESTING}
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
@@ -69,4 +121,6 @@ services:
 
 volumes:
   mysql_data:
+    driver: local
+  mysql_testing_data:
     driver: local

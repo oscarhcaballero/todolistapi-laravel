@@ -1,6 +1,7 @@
 # Variables
 DOCKER_COMPOSE = docker-compose
 PHP_SERVICE = api
+PHP_SERVICE_TESTING = api_testing
 USER_ID = $(shell id -u)
 GROUP_ID = $(shell id -g)
 
@@ -10,12 +11,16 @@ export $(shell sed 's/=.*//' .env)
 
 # Targets
 help: ## show all available targets
+	@echo 
+	@echo "TODO List API"
+	@echo "Óscar H Caballero :: Senior PHP developer"
+	@echo 
 	@echo 'usage: make [target]'
 	@echo
 	@echo 'targets:'
-	@echo '--------------------------------------------'
-	@egrep '^(.+)\:\ ##\ (.+)' ${MAKEFILE_LIST} | column -t -c 2 -s ':#'
-	@echo '--------------------------------------------'
+	@echo '--------------------------------------------------------------------------------------------'
+	@egrep '^(.+)\:\ ##\ (.+)' ${MAKEFILE_LIST} | sed 's/Makefile://g' | column -t -c 2 -s ':#'
+	@echo 
 
 build-project: ## Build project images & start up containers
 	@echo "Building project images..."
@@ -26,15 +31,22 @@ build-project: ## Build project images & start up containers
 	@echo "Clearing cache..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) composer clear-cache
 	
-	
-
-migrate: ## Update the database schema
-	@echo "Updating the database schema..."
+migrate: ## Run migrations for the development environment
+	@echo "Running migrations for the development environment..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate
 
-migrate-fresh: ## Creates the database, run all migrations from scratch, and seed the tables. Warning, this will delete all data in the database.
+migrate-testing: ## Run migrations for the testing environment
+	@echo "Running migrations for the testing environment..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan migrate
+
+migrate-fresh: ## Creates the database, run all migrations from scratch, and seed the tables
 	@echo "Creates the database, run all migrations from scratch, and seed the tables..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate:fresh --seed
+
+migrate-fresh-testing: ## Fresh migrations for the testing environment, and seed the tables
+	@echo "Creates the testing database, run all migrations from scratch, and seed the tables......"
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan migrate:fresh --seed
+
 
 schema: ## SQL script for creating the schema
 	@echo "SQL script for creating the schema..."
@@ -42,10 +54,11 @@ schema: ## SQL script for creating the schema
 	mkdir -p ./database/schema
 	mv schema.sql ./database/schema/schema.sql
 
-
 clear-cache: ## Clean the caches of the application
 	@echo "Cleaning the caches of the application..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan cache:clear
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan cache:clear
+
 
 route-list: ## Show the list of routes
 	@echo "Showing the list of routes..."
@@ -53,13 +66,15 @@ route-list: ## Show the list of routes
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan config:clear
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan cache:clear
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan route:cache
-	$(DOCKER_COMPOSE) restart $(PHP_SERVICE)
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan route:list
 
 
 ssh: ## bash inside the container of the API
 	@echo "Accessing the api container..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) -it ${PHP_SERVICE} bash
+ssh-testing: ## bash inside the testing container of the API
+	@echo "Accessing the testing api container..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) -it ${PHP_SERVICE_TESTING} bash
 
 
 create-migration: ## Create a new migration
@@ -67,25 +82,20 @@ create-migration: ## Create a new migration
 	@read -p "Enter the name of the migration: " migration_name; \
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:migration $$migration_name
 
-
 create-seeder: ## Create a new seeder
 	@echo "Creating a new seeder..."
 	@read -p "Enter the name of the seeder: " seeder_name; \
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:seeder $$seeder_name
-
 
 create-api-resource: ## Create a new API resource (model, migration, controller)
 	@echo "Creating a new API resource..."
 	@read -p "Enter the name of the resource: " resource_name; \
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:model $$resource_name -m --resource
 	
-
-
 create-model: ## Create a new model
 	@echo "Creating a new model..."
 	@read -p "Enter the name of the model: " model_name; \
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:model $$model_name
-
 
 create-controller: ## Create a new controller
 	@echo "Creating a new controller..."
@@ -94,10 +104,10 @@ create-controller: ## Create a new controller
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan make:controller $$controller_name --resource --model=$$model_name
 
 
-test: ## Execute tests like this, make test --filter=TestName
-	@echo "Executing tests..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan test $(filter-out $@,$(MAKECMDGOALS))
 
-	
+test: ## Execute all tests in a refreshed database
+	@echo "Executing tests. Be patient, it may take a while..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan test
 
- 
+
+

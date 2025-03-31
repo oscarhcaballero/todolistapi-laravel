@@ -101,7 +101,7 @@ class TaskController extends Controller
         
         // if task creation is successful, return a success response
         // managing the response (OCP)
-        return ApiResponse::success($task, 'Task created successfully.');
+        return ApiResponse::success($task, 'Task created successfully.',201);
            
     }
 
