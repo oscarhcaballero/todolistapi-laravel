@@ -12,7 +12,7 @@ export $(shell sed 's/=.*//' .env)
 # Targets
 help: ## show all available targets
 	@echo 
-	@echo "TODO List API"
+	@echo "TODO List API Makefile"
 	@echo "Óscar H Caballero :: Senior PHP developer"
 	@echo 
 	@echo 'usage: make [target]'
@@ -36,7 +36,15 @@ install: ## Install dependencies
 	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm install
 	@echo "Building assets..."
 	$(DOCKER_COMPOSE) exec --user root -d $(PHP_SERVICE) npm run dev
+
+server: ## Run the artisan server
+	@echo "Running the artisan server..."
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) php artisan serve
 	
+run-dev: ## Run the application in development mode
+	@echo "Running the application in development mode..."
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm run dev
+
 	
 migrate: ## Run migrations for the development environment
 	@echo "Running migrations for the development environment..."
@@ -63,8 +71,10 @@ schema: ## SQL script for creating the schema
 
 clear-cache: ## Clean the caches of the application
 	@echo "Cleaning the caches of the application..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan config:clear
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan cache:clear
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan cache:clear
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan view:clear
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan route:clear
 
 
 route-list: ## Show the list of routes

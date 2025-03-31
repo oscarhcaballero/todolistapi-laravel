@@ -13,6 +13,7 @@ services:
       - .:/var/www/html
     ports:
       - "8000:80"
+      - "5180:5180"
     depends_on:
       - mysql
     environment:

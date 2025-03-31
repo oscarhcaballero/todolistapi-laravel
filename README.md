@@ -16,11 +16,17 @@ make install
 
 ## Instructions for operation
 
-Launch tests:  make test
+There is a makefile with several commands you can use.
 
+make run-dev  (start the frontend at  http://localhost:8000/tasks)
 
 
 ## Where is the API documentation
+
+Para la autenticación con API Token, necesitamos el API Token de uno de los usuarios, 
+por ejemplo el usuario 1
+Ejecutamos el endpoint Login y recuperamos el Api Token del usuario logado.
+Ese Api Token lo tenemos que usar para todos los endpoints de la API
 
 
 
