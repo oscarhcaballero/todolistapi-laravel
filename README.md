@@ -1,41 +1,57 @@
 # DOCTORALIA Test - TODO List API 
 
 ## Instructions for installation
+Open a terminal in your machine and clone te repository:
 
-git clone https://github.com/oscarhcaballero/todolistapi-laravel
+    git clone https://github.com/oscarhcaballero/todolistapi-laravel
 
-cd todolistapi-laravel
+Enter the directory of the proyect:
 
-make build-project
+    cd todolistapi-laravel
 
-docker ps 
-(wait until all the containers are healthy)
+Build the containers:
+    
+    make build-project
 
-make install
+Wait until all the containers are healthy:
+
+    docker ps 
+
+Then, install dependencies of the project:
+
+    make install
 
 
 ## Instructions for operation
-
 There is a makefile with several commands you can use.
 
-make run-dev  (start the frontend at  http://localhost:8000/tasks)
+    make run-dev 
+    
+Go to the frontend at  http://localhost:8000/tasks
 
-
-## Where is the API documentation
-
-Para la autenticación con API Token, necesitamos el Token de uno de los usuarios, por ejemplo el usuario 'admin'
-
-Ejecutamos el endpoint Login y recuperamos el Token del usuario logado.
-Ese Token lo tenemos que usar para todos los endpoints de la API incluyéndolo en la Auenticación Bearer Token de los endpoints.
+In this responsive frontend you can call all the API operations.
 
 
 
-## Where is the API call examples (Postman)
+## Where is the API documentation (Postman)
+You have the JSON file with all the Postman endpoints at your disposal. Just import it into Postman and start using them.
+
+The Json file is in the root directory of the project and it is called:
+    TODO List API.postman_collection.json
+
+
+
+## API calls
+Once you have imported the json into postman, you will be able to access all the API endpoints
+
+For API Token authentication, we need the Token of one of the users, for example the 'admin' user.
+
+Run the Login endpoint and retrieve the logged-in user's token.
+You must use this token for all API endpoints, including it in the endpoint's Bearer Token Authentication.
 
 
 
 ## Where is the database schema
-
 You can generate the schema: make schema
 
 The schema will be at /database/schema/schema.sql
