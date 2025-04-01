@@ -32,8 +32,16 @@ build-project: ## Build project images & start up containers
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) composer clear-cache
 
 install: ## Install dependencies
+	@echo "Installing PHPunit..."
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) composer require --dev phpunit/phpunit
 	@echo "Installing npm dependencies..."
 	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm install
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) npm install
+	@echo "Installing composer dependencies..."
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm install
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) npm install
+	
+
 	@echo "Building assets..."
 	$(DOCKER_COMPOSE) exec --user root -d $(PHP_SERVICE) npm run dev
 
@@ -48,11 +56,11 @@ run-dev: ## Run the application in development mode
 	
 migrate: ## Run migrations for the development environment
 	@echo "Running migrations for the development environment..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate
-
-migrate-testing: ## Run migrations for the testing environment
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate --seed
 	@echo "Running migrations for the testing environment..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan migrate
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan migrate --seed
+
+
 
 migrate-fresh: ## Creates the database, run all migrations from scratch, and seed the tables
 	@echo "Creates the database, run all migrations from scratch, and seed the tables..."

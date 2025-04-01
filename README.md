@@ -18,13 +18,21 @@ Build the containers:
     
     make build-project
 
-Wait until all the containers are healthy:
+Wait until all the containers are healthy. 
+Do not worry if some unhealthy message appears after containers creation finish. 
+(The message may occur because the MySQL databases have not yet been started.)
 
-    docker ps 
 
-Then, install dependencies of the project:
+When 'docker ps' shows that all containers are healthy
+then launch migrations 
+
+    make migrate
+
+
+dependencies of the project:
 
     make install
+
 
 Make all the tests of the project.
 Tests are performed in separate application and database containers to ensure data persistence and prevent deletion or alteration.
