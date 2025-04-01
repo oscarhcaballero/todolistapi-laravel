@@ -26,7 +26,8 @@ Then, install dependencies of the project:
 
     make install
 
-Make all the tests of the project
+Make all the tests of the project.
+Tests are performed in separate application and database containers to ensure data persistence and prevent deletion or alteration.
 
     make test
 
