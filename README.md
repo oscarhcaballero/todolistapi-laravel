@@ -1,7 +1,7 @@
 # DOCTORALIA Test - TODO List API 
 
 ## Instructions for installation
-Open a terminal in your machine and clone te repository:
+Open a Ubuntu terminal in your machine and clone the repository:
 
     git clone https://github.com/oscarhcaballero/todolistapi-laravel
 
