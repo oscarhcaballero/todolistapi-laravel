@@ -20,18 +20,20 @@ Build the containers:
 
 Wait until all the containers are healthy. 
 
-Do not worry if some unhealthy message appears after containers creation finish. 
-(The message may occur because the MySQL databases have not yet been started.)
-
-When 'docker ps' shows that all containers are healthy
-then launch migrations.
-
-    make migrate-fresh   
-
 
 Install dependencies of the project:
 
     make install
+
+Check the containers:
+ 
+    docker ps
+
+If some unhealthy message appears after containers creation finish,
+then launch migrations from scratch. Otherwise, do not make this action:
+
+    make migrate-fresh   
+
 
 
 Make all the tests of the project.
@@ -47,26 +49,38 @@ Go to the frontend at  http://localhost:8000/tasks
 In this responsive frontend you can call all the API operations.
 
 
+You can go to phpMyAdmin at http://localhost:8080
+in order to check de databases. There are two database servers. mysql and mysql_testing
+
+User: oscar 
+Password: doctoralia_test
+
 
 ## Where is the API documentation (Postman)
-You have the JSON file with all the Postman endpoints at your disposal. Just import it into Postman and start using them.
-
 The Json file is in the root directory of the project and it is called:
     TODO_List_API.postman_collection.json
+
+You have the JSON file with all the Postman endpoints at your disposal. 
+
+For more simplicity, Install Postman VSCode extension and then import the JSON file.
 
 
 
 ## API calls
-Once you have imported the json into postman, you will be able to access all the API endpoints
+Once you have imported the json into Postman VSCode extension, you will be able to access all the API endpoints
 
 For API Token authentication, we need the Token of one of the users, for example the 'admin' user.
 
 Run the Login endpoint and retrieve the logged-in user's token.
-You must use this token for all API endpoints, including it in the endpoint's Bearer Token Authentication.
+
+You must use this token for all API endpoints, including it in the endpoint's Authorization section. 
+Type: Bearer Token
 
 
 
 ## Where is the database schema
-You can generate the schema: make schema
+You can generate the schema: 
+    
+    make schema
 
 The schema will be at /database/schema/schema.sql
