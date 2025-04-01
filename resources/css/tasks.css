@@ -8,29 +8,37 @@ body {
 
 .container {
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
     background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
 }
 
 h1 {
+    font-size: 2em;
     text-align: center;
+    padding: 15px;
 }
 
-#taskInput {
-    width: 60%;
+#taskName,
+#statusSelect,
+#userSelect
+{
+    width: 100%;
     padding: 10px;
-    margin-right: 10px;
+    margin: 10px 0;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    text-align: center;
 }
 
 button {
     padding: 10px 15px;
-    font-size: 16px;
+    font-size: 13px;
     background-color: #007bff;
     color: white;
     border: none;
@@ -43,24 +51,178 @@ button:hover {
 }
 
 #taskList {
+    width: 100%;
     margin-top: 20px;
 }
 
-.task {
+.add-btn {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    padding: 10px;
+}
+
+
+
+.task-header,
+.task {
+    display: grid;
+    grid-template-columns: 10% 30% 20% 20% 20%; /* Columnas: ID, Título, Estado, Usuario, Acciones */
     align-items: center;
     padding: 10px;
     border-bottom: 1px solid #ccc;
-    margin-bottom: 5px;
+    text-align: center;
 }
+
+.task-header {
+    font-weight: bold;
+    background-color: #f4f4f4;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.task-content {
+    flex-grow: 1; /* Permite que el contenido ocupe todo el espacio disponible */
+    display: flex;
+    gap: 15px; /* Espaciado entre los textos */
+}
+
+.task-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+
+/* Edit Task Form.   Inicialmente está oculto */
+.edit-task-form {
+    display: none; 
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 500px;
+    z-index: 1000;
+    border-radius: 5px;
+}
+
+.edit-task-form input, .edit-task-form textarea, .edit-task-form select {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.edit-task-form button {
+    padding: 10px 15px;
+    font-size: 14px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.edit-task-form button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Estilos para el overlay */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Color negro con opacidad */
+    z-index: 999; /* Asegura que esté por encima de todo el contenido */
+    display: none; /* Ocultar por defecto */
+}
+
+ 
+
+/* Estilo para el mensaje de éxito */
+#successMessage,
+#successUpdatedMessage,
+#successDeletedMessage
+{
+    color: green;
+    font-size: 14px;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #d4edda;  /* Color de fondo verde claro */
+    border: 1px solid #c3e6cb;  /* Borde verde claro */
+    border-radius: 5px;
+    padding: 10px;
+    display: none;  /* Inicialmente oculto */
+}
+
+/* Estilo para el mensaje de error */
+#warningMessage {
+    color: #ff4000;
+    font-size: 14px;
+    margin-top: 10px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #feed96;  /* Color de fondo rojo claro */
+    border: 1px solid #ffce3c;  /* Borde rojo claro */
+    border-radius: 5px;
+    padding: 10px;
+    display: none;  /* Inicialmente oculto */
+}
+
+
+
+
+
+
+
 
 @media (max-width: 768px) {
     .container {
         padding: 10px;
     }
 
-    #taskInput {
-        width: 70%;
+    /* Ocultar las columnas de 'id', 'status' y 'user_id' en pantallas pequeñas */
+    .task-header > :nth-child(1),
+    .task-header > :nth-child(3), 
+    .task-header > :nth-child(4),
+    .task > :nth-child(1),
+    .task > :nth-child(3), 
+    .task > :nth-child(4) {
+        display: none;
+    }
+
+    /* Asegurarse de que los campos restantes estén centrados y bien espaciados */
+    #taskName {
+        text-align: left;
+    }
+
+    .task-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Igual que en el cuerpo de la tarea */
+        gap: 10px;
+    }
+    .task-header > :nth-child(5) { /* Columna 'Actions' alineada a la derecha */
+        justify-self: flex-end;
+    }
+
+    /* Modificar el diseño de la lista de tareas */
+    .task {
+        display: grid;
+        grid-template-columns:1fr 1fr; /* Solo Título y Acciones (sin ID, Status, User) */
+        gap: 10px;
+    }
+
+    .task-actions {
+        justify-content: flex-end;
     }
 }

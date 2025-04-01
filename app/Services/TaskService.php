@@ -39,7 +39,9 @@ class TaskService implements TaskServiceInterface
      */
     public function getAllTasks()
     {
-        return Task::all();
+        // Load the user relationship  
+        // and select only the id and name columns from the user table
+        return Task::with('user:id,name,email')->get();
     }
 
     /**

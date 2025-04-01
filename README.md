@@ -23,10 +23,10 @@ make run-dev  (start the frontend at  http://localhost:8000/tasks)
 
 ## Where is the API documentation
 
-Para la autenticación con API Token, necesitamos el API Token de uno de los usuarios, 
-por ejemplo el usuario 1
-Ejecutamos el endpoint Login y recuperamos el Api Token del usuario logado.
-Ese Api Token lo tenemos que usar para todos los endpoints de la API
+Para la autenticación con API Token, necesitamos el Token de uno de los usuarios, por ejemplo el usuario 'admin'
+
+Ejecutamos el endpoint Login y recuperamos el Token del usuario logado.
+Ese Token lo tenemos que usar para todos los endpoints de la API incluyéndolo en la Auenticación Bearer Token de los endpoints.
 
 
 
