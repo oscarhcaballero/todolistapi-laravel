@@ -19,17 +19,17 @@ Build the containers:
     make build-project
 
 Wait until all the containers are healthy. 
+
 Do not worry if some unhealthy message appears after containers creation finish. 
 (The message may occur because the MySQL databases have not yet been started.)
 
-
 When 'docker ps' shows that all containers are healthy
-then launch migrations 
+then launch migrations.
 
-    make migrate
+    make migrate-fresh   
 
 
-dependencies of the project:
+Install dependencies of the project:
 
     make install
 
@@ -41,9 +41,6 @@ Tests are performed in separate application and database containers to ensure da
 
 
 ## Instructions for operation
-Run the frontend server
-
-    make run-dev 
     
 Go to the frontend at  http://localhost:8000/tasks
 
@@ -55,7 +52,7 @@ In this responsive frontend you can call all the API operations.
 You have the JSON file with all the Postman endpoints at your disposal. Just import it into Postman and start using them.
 
 The Json file is in the root directory of the project and it is called:
-    TODO List API.postman_collection.json
+    TODO_List_API.postman_collection.json
 
 
 

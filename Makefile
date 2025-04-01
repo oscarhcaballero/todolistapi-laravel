@@ -31,19 +31,26 @@ build-project: ## Build project images & start up containers
 	@echo "Clearing cache..."
 	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) composer clear-cache
 
-install: ## Install dependencies
-	@echo "Installing PHPunit..."
-	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) composer require --dev phpunit/phpunit
-	@echo "Installing npm dependencies..."
-	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm install
-	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) npm install
-	@echo "Installing composer dependencies..."
-	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm install
-	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) npm install
-	
 
+install: ## Install dependencies
+	@echo "Installing PHPunit in testing environment..."
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) composer require --dev phpunit/phpunit
+	@echo "Installing dependencies..."
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm install
+	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE_TESTING) npm install
 	@echo "Building assets..."
 	$(DOCKER_COMPOSE) exec --user root -d $(PHP_SERVICE) npm run dev
+
+
+
+migrate: ## Run migrations for the development & testing environments 
+	@echo "Running migrations for the development environment..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate --seed
+	@echo "Running migrations for the testing environment..."
+	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan migrate --seed
+
+
+
 
 server: ## Run the artisan server
 	@echo "Running the artisan server..."
@@ -54,11 +61,7 @@ run-dev: ## Run the application in development mode
 	$(DOCKER_COMPOSE) exec --user root $(PHP_SERVICE) npm run dev
 
 	
-migrate: ## Run migrations for the development environment
-	@echo "Running migrations for the development environment..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE) php artisan migrate --seed
-	@echo "Running migrations for the testing environment..."
-	$(DOCKER_COMPOSE) exec --user $(USER_ID):$(GROUP_ID) $(PHP_SERVICE_TESTING) php artisan migrate --seed
+
 
 
 
