@@ -9,6 +9,11 @@ Enter the directory of the proyect:
 
     cd todolistapi-laravel
 
+There is a makefile with several commands you can use.
+You can see all the commands by typing... 
+
+    make
+
 Build the containers:
     
     make build-project
@@ -21,9 +26,13 @@ Then, install dependencies of the project:
 
     make install
 
+Make all the tests of the project
+
+    make test
+
 
 ## Instructions for operation
-There is a makefile with several commands you can use.
+Run the frontend server
 
     make run-dev 
     
